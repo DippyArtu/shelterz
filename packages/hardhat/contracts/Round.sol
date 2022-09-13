@@ -50,8 +50,8 @@ contract Round is Ownable {
 
   // @notice                            round conditions
   uint256 constant public               SEED_ROUND_FUND = 30000000 ether;
-  uint256 constant public               TERZ_PRICE_USDT = 10;                 // 0.017 usdt !
-  uint256 constant public               MIN_PURCHASE_AMOUNT = 1000 ether;     // 10 usdt !
+  uint256 constant public               TERZ_PRICE_USDT = 17;                 // 0.017 usdt !
+  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;     // 10 usdt !
   uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
   uint256 constant public               ROUND_END_DATE = 1757761958;          // 18.07.22 00:00
   uint256 constant public               LOCK_PERIOD = 30 days;
@@ -81,6 +81,7 @@ contract Round is Ownable {
     uint256                             nextUnlockDate;     // unix timestamp of next claim unlock (defined by LOCK_PERIOD)
     uint8                               numUnlocks;         // 10 in total
     bool                                isLocked;           // are tokens currently locked
+    uint256                             initialPayout;      // takes into account 10% initial issue
   }
 
   // @notice                            keeps track of users
@@ -183,10 +184,10 @@ contract Round is Ownable {
     User  storage                       userStruct = users[user];
     uint256                             amountToClaim; // 10%
 
-    if (userStruct.numUnlocks < 9) { // number of claims to perform
-      amountToClaim = (userStruct.totalTERZBalance / 10000) * 1000; // 10%
+    if (userStruct.numUnlocks < 10) { // number of claims to perform
+      amountToClaim = ((userStruct.totalTERZBalance - userStruct.initialPayout) / 10000) * 1000; // 10%
     }
-    else if (userStruct.numUnlocks == 9) { // number of claims to perform
+    else if (userStruct.numUnlocks == 10) { // number of claims to perform
       amountToClaim = userStruct.pendingForClaim;
     }
     else {
@@ -201,7 +202,7 @@ contract Round is Ownable {
 
     emit TERZClaimed(user,
                      amountToClaim,
-                     6 - userStruct.numUnlocks,
+                     10 - userStruct.numUnlocks, // number of claims left to perform
                      userStruct.nextUnlockDate);
   }
 
@@ -230,6 +231,7 @@ contract Round is Ownable {
     if (users[user].totalTERZBalance == 0) {
       icoTokenHolders.push(user);
     }
+    userStruct.initialPayout += immediateAmount;
     userStruct.totalTERZBalance += amount;
     availableTreasury -= amount;
     userStruct.liquidBalance += immediateAmount;                          // issue 10% immediately to struct
