@@ -210,7 +210,7 @@ contract Round is Ownable {
   // @param                             [uint256] _amount => amount of TERZ tokens to purchase
   function                              buyTERZ(uint256 _amount) public areTokensAvailable(_amount) ifActive {
     address                             user = msg.sender;
-    uint256                             priceUSDT = _amount / TERZ_PRICE_USDT;
+    uint256                             priceUSDT = _amount / 1000 * TERZ_PRICE_USDT;
 
     require(USDT.balanceOf(user) >= priceUSDT, "Not enough USDT tokens!");
     require(USDT.transferFrom(user, address(this), priceUSDT) == true, "Failed to transfer USDT!");

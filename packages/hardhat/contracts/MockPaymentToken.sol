@@ -23,8 +23,7 @@ contract MockPaymentToken is ERC20, ERC20Burnable, Ownable {
 
     // @notice               mints DEV_TEST_AMOUNT to this address at deploy
     uint256 public           DEV_TEST_AMOUNT = 10000000000 ether;
-    //address constant         DEV_ADDRESS = 0x95e9450e2737e2239Be1CE225D79E4B2bE171f71; // <----- set dev address EOA
-    address constant         DEV_ADDRESS = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266; // <----- set dev address hardhat
+    address constant         DEV_ADDRESS = 0x95e9450e2737e2239Be1CE225D79E4B2bE171f71; // <----- set dev address EOA
 
 
     // FUNCTIONS

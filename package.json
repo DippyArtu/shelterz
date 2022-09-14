@@ -66,7 +66,9 @@
       "**/hardhat-ts/**"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.6"
+  },
   "devDependencies": {
     "husky": "^7.0.2"
   }
