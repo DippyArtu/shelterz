@@ -50,11 +50,11 @@ contract Round is Ownable {
 
   // @notice                            round conditions
   uint256 constant public               SEED_ROUND_FUND = 30000000 ether;
-  uint256 constant public               TERZ_PRICE_USDT = 17;                 // 0.017 usdt !
-  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;     // 10 usdt !
+  uint256 constant public               TERZ_PRICE_USDT = 17;                 // 0.017 usdt
+  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;     // 10 usdt
   uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
   uint256 constant public               ROUND_END_DATE = 1757761958;          // 18.07.22 00:00
-  uint256 constant public               LOCK_PERIOD = 30 days;
+  uint256 constant public               LOCK_PERIOD = 2 seconds; // 30 days
 
   // @notice                            token interfaces
   address public                        TERZAddress;
@@ -208,7 +208,7 @@ contract Round is Ownable {
 
   // @notice                            allows to purchase TERZ tokens
   // @param                             [uint256] _amount => amount of TERZ tokens to purchase
-  function                              buyTERZ(uint256 _amount) public areTokensAvailable(_amount) ifActive {
+  function                              buyTokens(uint256 _amount) public areTokensAvailable(_amount) ifActive {
     address                             user = msg.sender;
     uint256                             priceUSDT = _amount / 1000 * TERZ_PRICE_USDT;
 
