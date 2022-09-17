@@ -1,5 +1,5 @@
 //TODO:
-// - admin free mint to wallet
+// - reset lock after 10 claims
 
 // SPDX-License-Identifier: MIT
 //
@@ -22,25 +22,25 @@
 // - Pending for claim for user ===============================> [uint256] users[msg.sender].pendingForClaim
 // - Next unlock date for user ================================> [uint256] users[msg.sender].nextUnlockDate
 // - Check allowance ==========================================> [uint256] USDT.allowance(msg.sender, address(this))
-// - Buy tokens (recieve in USDT, input amount in TERZ) =======>           buyTERZ(uint256 _amount)
+// - Buy tokens (recieve in USDT, input amount in Token) =======>           buyToken(uint256 _amount)
 // - Check if user tokens unlocked and transfer them to user ==>           claimTokens()
 // - Set allowance ============================================> call USDT contract from website directly
 //                                                       approve amount = 200000000000000000000000000 wei
 //                                                       this is WEI too much (🤡) but we'll never spend
 //                                                       more than 50k, this allows us to track
-//                                                       TERZ purchase amount limits
+//                                                       Token purchase amount limits
 //
 // DEPLOYMENT:
 //
-// - Deploy TERZ token
-// - Deploy SeedRound, pass TERZ && USDT token addresses to constructor
+// - Deploy Token token
+// - Deploy SeedRound, pass Token && USDT token addresses to constructor
 
 pragma solidity ^0.8.4;
 
 import "../libs/@openzeppelin/contracts/access/Ownable.sol";
 import "../libs/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./interfaces/ITERZ.sol";
+import "./interfaces/ITOKEN.sol";
 
 contract Round is Ownable {
 
@@ -49,29 +49,38 @@ contract Round is Ownable {
   // -------------------------------------------------------------------------------------------------------
 
   // @notice                            round conditions
-  uint256 constant public               SEED_ROUND_FUND = 30000000 ether;
-  uint256 constant public               TERZ_PRICE_USDT = 17;                 // 0.017 usdt
+  uint256 constant public               ROUND_FUND = 30000000 ether;
+  uint256 constant public               TOKEN_PRICE_USDT = 17;                // 0.017 usdt
   uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;      // 10 usdt
   uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
-  uint256 constant public               ROUND_END_DATE = 1757761958;          // 18.07.22 00:00
-  uint256  public               LOCK_PERIOD; // 30 days
+  //uint256 constant public               ROUND_END_DATE =   33315018412;       // 18.07.22 00:00
+  //uint256 constant public               LOCK_PERIOD = 30 days;
+  uint8 constant public                 NUM_CLAIMS = 10;                      // 10 claims to be performed in total
 
-  function shortLock() external onlyOwner() { /////////////////// DEBUG !!!!!!
-    LOCK_PERIOD = 1 seconds;
-  }
-  
+  /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
+  uint256 public               LOCK_PERIOD = 0;
   function longLock() external onlyOwner() {
     LOCK_PERIOD = 2 seconds;
   }
 
+  uint256 public ROUND_END_DATE = 33315018412;
+  function expired() external onlyOwner() {
+    ROUND_END_DATE = 1657324800;
+  }
+
+  function getAvailableTreasury() public view returns(uint256) {
+    return(availableTreasury);
+  }
+  /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
+
   // @notice                            token interfaces
-  address public                        TERZAddress;
+  address public                        TokenAddress;
   address public                        usdtAddress;
-  ITERZ                                 TERZ;
+  IToken                                TOKEN;
   IERC20                                USDT;
 
   // @notice                            round state
-  uint256 public                        availableTreasury = SEED_ROUND_FUND;
+  uint256 public                        availableTreasury = ROUND_FUND;
   bool    public                        isActive;
 
 
@@ -83,7 +92,7 @@ contract Round is Ownable {
 
   // @notice                            user state structure
   struct                                User {
-    uint256                             totalTERZBalance;   // total num of tokens user have bought through the contract
+    uint256                             totalTokenBalance;   // total num of tokens user have bought through the contract
     uint256                             liquidBalance;      // amount of tokens the contract already sent to user
     uint256                             pendingForClaim;    // amount of user's tokens that are still locked
     uint256                             nextUnlockDate;     // unix timestamp of next claim unlock (defined by LOCK_PERIOD)
@@ -103,8 +112,8 @@ contract Round is Ownable {
   // ------------------------------- EVENTS
   // -------------------------------------------------------------------------------------------------------
 
-  event                                 TERZPurchased(address indexed user, uint256 amount);
-  event                                 TERZClaimed(address indexed user,
+  event                                 TokenPurchased(address indexed user, uint256 amount);
+  event                                 TokenClaimed(address indexed user,
                                                     uint256 amount,
                                                     uint256 claimsLeft,
                                                     uint256 nextUnlockDate);
@@ -118,14 +127,14 @@ contract Round is Ownable {
   // ------------------------------- Constructor
   // -------------------------------------------------------------------------------------------------------
 
-  // @param                             [address] TERZ => TERZ token address
+  // @param                             [address] Token => Token token address
   // @param                             [address] usdt => USDT token address
-  constructor(address terz, address usdt) {
-    TERZAddress = terz;
+  constructor(address token, address usdt) {
+    TokenAddress = token;
     usdtAddress = usdt;
-    TERZ = ITERZ(terz);
+    TOKEN = IToken(token);
     USDT = IERC20(usdt);
-    TERZ.grantManagerToContractInit(address(this), SEED_ROUND_FUND);
+    TOKEN.grantManagerToContractInit(address(this), ROUND_FUND);
     isActive = true;
   }
 
@@ -142,9 +151,7 @@ contract Round is Ownable {
     require(amount >= MIN_PURCHASE_AMOUNT,
                       "Lower than min purchase amount!");
     require(availableTreasury - amount >= 0,
-                      "Not enough TERZ tokens left!");
-    require(USDT.allowance(msg.sender, address(this)) >= amount,
-                      "Not enough allowance, approve your USDT first!");
+                      "Not enough tokens left!");
     _;
   }
 
@@ -193,61 +200,74 @@ contract Round is Ownable {
     uint256                             amountToClaim; // 10%
 
     require(userStruct.isLocked == false, "Tokens are locked!");
-    if (userStruct.numUnlocks < 10) { // number of claims to perform
-      amountToClaim = ((userStruct.totalTERZBalance - userStruct.initialPayout) / 10000) * 1000; // 10%
+    if (userStruct.numUnlocks < NUM_CLAIMS) {
+      amountToClaim = ((userStruct.totalTokenBalance - userStruct.initialPayout) / 10000) * 1000; // 10%
     }
-    else if (userStruct.numUnlocks == 10) { // number of claims to perform
+    else if (userStruct.numUnlocks == NUM_CLAIMS) {
       amountToClaim = userStruct.pendingForClaim;
     }
     else {
       revert("Everything is already claimed!");
     }
     userStruct.isLocked = true;
-    TERZ.mint(user, amountToClaim);
+    TOKEN.mint(user, amountToClaim);
     userStruct.liquidBalance += amountToClaim;
     userStruct.pendingForClaim -= amountToClaim;
     userStruct.nextUnlockDate += LOCK_PERIOD;
     userStruct.numUnlocks += 1;
 
-    emit TERZClaimed(user,
+    emit TokenClaimed(user,
                      amountToClaim,
-                     10 - userStruct.numUnlocks, // number of claims left to perform
+                     NUM_CLAIMS - userStruct.numUnlocks, // number of claims left to perform
                      userStruct.nextUnlockDate);
   }
 
-  // @notice                            allows to purchase TERZ tokens
-  // @param                             [uint256] _amount => amount of TERZ tokens to purchase
+  // @notice                            allows to purchase Token tokens
+  // @param                             [uint256] _amount => amount of Token tokens to purchase
   function                              buyTokens(uint256 _amount) public areTokensAvailable(_amount) ifActive {
     address                             user = msg.sender;
-    uint256                             priceUSDT = _amount / 1000 * TERZ_PRICE_USDT;
+    uint256                             priceUSDT = _amount / 1000 * TOKEN_PRICE_USDT;
 
+    require(USDT.allowance(msg.sender, address(this)) >= _amount,
+                      "Not enough allowance, approve your USDT first!");
     require(USDT.balanceOf(user) >= priceUSDT, "Not enough USDT tokens!");
     require(USDT.transferFrom(user, address(this), priceUSDT) == true, "Failed to transfer USDT!");
-    _lockAndDistribute(_amount);
-    emit TERZPurchased(msg.sender, _amount);
+    _lockAndDistribute(_amount, msg.sender);
+    emit TokenPurchased(msg.sender, _amount);
   }
 
-  // @notice                            when user buys TERZ, 10% is issued immediately
+  // @notice                            when user buys Token, 10% is issued immediately
   //                                    remaining tokens are locked for 6 * LOCK_PERIOD = 18 months
-  // @param                             [uint256] amount => amount of TERZ tokens to distribute
-  function                              _lockAndDistribute(uint256 amount) private {
-    address                             user = msg.sender;
-    User  storage                       userStruct = users[user];
+  // @param                             [uint256] amount => amount of Token tokens to distribute
+  // @param                             [address] _to => address to issue tokens to
+  function                              _lockAndDistribute(uint256 _amount, address _to) private {
+    User  storage                       userStruct = users[_to];
     uint256                             timestampNow = block.timestamp;
-    uint256                             immediateAmount = (amount / 10000) * 1000;  // 10%
+    uint256                             immediateAmount = (_amount / 10000) * 1000;  // 10%
 
-    TERZ.mint(user, immediateAmount);                                     // issue 10% immediately
-    if (users[user].totalTERZBalance == 0) {
-      icoTokenHolders.push(user);
+    TOKEN.mint(_to, immediateAmount);                                     // issue 10% immediately
+    if (users[_to].totalTokenBalance == 0) {
+      icoTokenHolders.push(_to);
     }
     userStruct.initialPayout += immediateAmount;
-    userStruct.totalTERZBalance += amount;
-    availableTreasury -= amount;
+    userStruct.totalTokenBalance += _amount;
+    availableTreasury -= _amount;
     userStruct.liquidBalance += immediateAmount;                          // issue 10% immediately to struct
-    userStruct.pendingForClaim += amount - immediateAmount;               // save the rest
+    userStruct.pendingForClaim += _amount - immediateAmount;               // save the rest
     userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD;               // lock for 10 months
     userStruct.isLocked = true;
-    userStruct.numUnlocks = 0;
+
+    if (userStruct.numUnlocks >= NUM_CLAIMS) {
+      userStruct.numUnlocks = 0;
+    }
+  }
+
+  // @notice                            allows admin to issue tokens with vesting rules to address
+  // @param                             [uint256] _amount => amount of Token tokens to issue
+  // @param                             [address] _to => address to issue tokens to
+  function                              issueTokens(uint256 _amount, address _to) public areTokensAvailable(_amount) onlyOwner {
+    _lockAndDistribute(_amount, _to);
+    emit TokenPurchased(_to, _amount);
   }
 
 
@@ -265,10 +285,10 @@ contract Round is Ownable {
     USDT.transfer(_reciever, balance);
   }
 
-  // @notice                            allows to withdraw TERZ remaining after the round end
+  // @notice                            allows to withdraw remaining tokens after the round end
   // @param                             [address] _reciever => wallet to send tokens to
-  function                              withdrawRemainingTERZ(address _reciever) public onlyOwner ifInactive {
-    TERZ.transfer(_reciever, availableTreasury);
+  function                              withdrawRemainingToken(address _reciever) public onlyOwner ifInactive {
+    TOKEN.mint(_reciever, availableTreasury);
     availableTreasury = 0;
   }
 

@@ -1,10 +1,10 @@
 const { expect } = require("chai");
-const { solidity } = require("ethereum-waffle");
 const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
+ROUND_FUND = ethers.utils.parseEther("30000000");
+NUM_CLAIMS = 10;
 
 function sleep(milliseconds) {
   const date = Date.now();
@@ -41,9 +41,6 @@ describe("Token and CO Round Coverage", function () {
     // approve USDT for spend
     await hardhatMockPaymentToken.approve(hardhatRound.address, ethers.utils.parseEther("100000000000000"));
 
-    // set lock period
-    await hardhatRound.shortLock();
-
     return {
       MockPaymentToken,
       ShelterzToken,
@@ -57,44 +54,8 @@ describe("Token and CO Round Coverage", function () {
     };
   };
 
-  async function deployFixtureLongLock() {
-    const MockPaymentToken = await ethers.getContractFactory("MockPaymentToken");
-    const ShelterzToken = await ethers.getContractFactory("ShelterzToken");
-    const Round = await ethers.getContractFactory("Round");
 
-    const [owner, addr1, addr2] = await ethers.getSigners();
 
-    // deploy contracts
-    const hardhatMockPaymentToken = await MockPaymentToken.deploy();
-    await hardhatMockPaymentToken.deployed();
-
-    const hardhatShelterzToken = await ShelterzToken.deploy();
-    await hardhatShelterzToken.deployed();
-
-    const hardhatRound = await Round.deploy(hardhatShelterzToken.address, hardhatMockPaymentToken.address);
-    await hardhatRound.deployed();
-
-    // mint USDT to owner
-    await hardhatMockPaymentToken.mint(owner.address, ethers.utils.parseEther("10000000000"));
-
-    // approve USDT for spend
-    await hardhatMockPaymentToken.approve(hardhatRound.address, ethers.utils.parseEther("100000000000000"));
-
-    // set lock period
-    await hardhatRound.longLock();
-
-    return {
-      MockPaymentToken,
-      ShelterzToken,
-      Round,
-      hardhatMockPaymentToken,
-      hardhatShelterzToken,
-      hardhatRound,
-      owner,
-      addr1,
-      addr2
-    };
-  };
 
 
   // checks that contracts deployed correctly
@@ -117,6 +78,11 @@ describe("Token and CO Round Coverage", function () {
       expect(await hardhatMockPaymentToken.allowance(owner.address, hardhatRound.address)).to.equal(ethers.utils.parseEther("100000000000000"));
     });
   });
+
+
+
+
+
 
   describe("Sale mechanics", function () {
 
@@ -144,7 +110,25 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
       expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("100"));
     });
+
+    it("Should allow admin to issue tokens under vesting to users", async function () {
+      const {addr1, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
+      // issue 1000 tokens to user
+      await hardhatRound.issueTokens(ethers.utils.parseEther("1000"), addr1.address);
+      expect(await hardhatShelterzToken.balanceOf(addr1.address)).to.be.equal(ethers.utils.parseEther("100"));
+    });
+
+    it("Should not allow non-priviliged user to issue tokens under vesting to users", async function () {
+      const {addr1, hardhatRound} = await loadFixture(deployFixture);
+      // issue 1000 tokens to user
+      await expect(hardhatRound.connect(addr1).issueTokens(ethers.utils.parseEther("1000"), addr1.address)).to.be.reverted;
+    });
   });
+
+
+
+
+
 
   describe("Vesting mechanics", function () {
 
@@ -155,18 +139,25 @@ describe("Token and CO Round Coverage", function () {
       expect(userStruct.pendingForClaim).to.be.equal(ethers.utils.parseEther("900"));
     });
 
-    it("Should allow to claim 10% of tokens when unlocked", async function () {
+    it("Should allow to claim 10% of locked tokens per claim when unlocked", async function () {
       const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // purchase 1000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
-      sleep(1001);
+      sleep(10);
       await hardhatRound.claimTokens();
-      // checking if 20% claimed (10% initial + 10% new)
+      // 10% transfered initially, remaining 90% distributed over 10 claims
+      // checking if 19% claimed (10% initial + 9% new)
       expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("190"));
+      sleep(10);
+      await hardhatRound.claimTokens();
+      // checking if 28% claimed (10% initial + 9% + 9%)
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("280"));
     });
 
     it("Should not allow to claim tokens when locked", async function () {
-      const {hardhatRound} = await loadFixture(deployFixtureLongLock);
+      const {hardhatRound} = await loadFixture(deployFixture);
+      // set lock period
+      await hardhatRound.longLock();
       // purchase 1000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
       // trying to claim again straight away
@@ -175,40 +166,47 @@ describe("Token and CO Round Coverage", function () {
     });
 
     it("Should not allow to make more than 10 claims (without reseting)", async function () {
-      const {hardhatRound} = await loadFixture(deployFixture);
+      const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // purchase 1000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
-      // claim 10 times
-      for (let i = 0; i < 10; i++) {
-        sleep(1001);
+      // claim all
+      for (let i = 0; i < NUM_CLAIMS; i++) {
+        sleep(10);
         await hardhatRound.claimTokens();
       }
-      sleep(1001);
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(10);
+      // try to claim again
+      sleep(10);
       await expect(hardhatRound.claimTokens()).to.be.reverted;
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("1000"));
     });
 
     it("Should transfer 100% of purchased tokens to user after vesting (10 unlocks)", async function () {
       const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // purchase 1000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
-      // claim 10 times
-      for (let i = 0; i < 10; i++) {
-        sleep(1001);
+      // claim all
+      for (let i = 0; i < NUM_CLAIMS; i++) {
+        sleep(10);
         await hardhatRound.claimTokens();
       }
       // get user pending balance from struct
       userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.pendingForClaim).to.be.equal(0);
+      // get user liquid balance from struct
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.liquidBalance).to.be.equal(ethers.utils.parseEther("1000"));
       // get user token balance
       expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("1000"));
     });
 
-    it("Should reset the lock if user buys again", async function () {
+    it("Should not reset the lock if user buys again", async function () {
       const {owner, hardhatRound} = await loadFixture(deployFixture);
       // purchase 1000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
       // claim once
-      sleep(1001);
+      sleep(10);
       await hardhatRound.claimTokens();
       // read user number of claims
       userStruct = await hardhatRound.users(owner.address);
@@ -217,15 +215,119 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
       // read user number of claims
       userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(1);
+    });
+
+    it("Should claim 100% of tokens when user buys, claims multiple times and buys again", async function () {
+      const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      // claim twice
+      for (let i = 0; i < 2; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // read user number of claims
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(2);
+      // purchase another 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      // read user number of claims
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(2);
+      // claim remaining tokens
+      for (let i = 0; i < NUM_CLAIMS - 2; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // test results
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(NUM_CLAIMS);
+      expect(userStruct.pendingForClaim).to.be.equal(0);
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("2000"));
+    });
+
+    it("Should reset lock after initial TGE end", async function () {
+      const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      // claim all
+      for (let i = 0; i < NUM_CLAIMS; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.numUnlocks).to.be.equal(0);
+      await hardhatRound.claimTokens();
+      expect(userStruct.numUnlocks).to.be.equal(1);
     });
   });
 
+
+
+
+
+
   describe("Round mechanics", function () {
 
-    // Should allow to purchase tokens if round is within the timeframe (start-end)
-    // Should not allow to purchase tokens if round is not within the timeframe
-    // Should allow to purchase tokens if round treasury is not empty
-    // Should not allow to purchase tokens if round treasury is empty
+    it("Should allow to purchase tokens if round is within the timeframe (start-end)", async function () {
+      const {owner, hardhatRound} = await loadFixture(deployFixture);
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      balance = await hardhatRound.users(owner.address);
+      balance = balance.totalTokenBalance;
+      expect(balance).to.be.equal(ethers.utils.parseEther("1000"));
+    });
+
+    it("Should not allow to purchase tokens if round is not within the timeframe", async function () {
+      const {hardhatRound} = await loadFixture(deployFixture);
+      // disable the round
+      await hardhatRound.expired();
+      // purchase 1000 tokens
+      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("1000"))).to.be.reverted;
+    });
+
+    it("Should allow to purchase tokens if round treasury is not empty", async function () {
+      const {owner, hardhatRound} = await loadFixture(deployFixture);
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      balance = await hardhatRound.users(owner.address);
+      balance = balance.totalTokenBalance;
+      expect(balance).to.be.equal(ethers.utils.parseEther("1000"));
+    });
+
+    it("Should not allow to purchase tokens if round treasury is empty", async function () {
+      const {hardhatRound} = await loadFixture(deployFixture);
+      // purchase all tokens
+      await hardhatRound.buyTokens(ROUND_FUND);
+      // try to purchase some more
+      await expect(hardhatRound.buyTokens(100)).to.be.reverted;
+    });
+
+    it("Should allow admin to withdraw raised funds", async function () {
+      const {owner, hardhatMockPaymentToken, hardhatRound} = await loadFixture(deployFixture);
+      // purchase 1000 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1000"));
+      balance = await hardhatMockPaymentToken.balanceOf(hardhatRound.address);
+      // withdraw USDT
+      await expect(() => hardhatRound.withdrawRaisedFunds(owner.address)).to.changeTokenBalance(hardhatMockPaymentToken, owner, balance);
+    });
+
+    it("Should allow admin to mint remaining allocated tokens after the round end", async function () {
+      const {owner, hardhatRound} = await loadFixture(deployFixture);
+      // disable the round
+      await hardhatRound.expired();
+      // mint all tokens
+      await hardhatRound.withdrawRemainingToken(owner.address);
+      expect(await hardhatRound.getAvailableTreasury()).to.be.equal(0);
+    });
+
+    it("Should not allow admin to mint remaining allocated tokens before the round end", async function () {
+      const {owner, hardhatRound} = await loadFixture(deployFixture);
+      // try to mint all tokens
+      await expect(hardhatRound.withdrawRemainingToken(owner.address)).to.be.reverted;
+    });
   });
 });
