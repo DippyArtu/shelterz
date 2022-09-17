@@ -51,10 +51,18 @@ contract Round is Ownable {
   // @notice                            round conditions
   uint256 constant public               SEED_ROUND_FUND = 30000000 ether;
   uint256 constant public               TERZ_PRICE_USDT = 17;                 // 0.017 usdt
-  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;     // 10 usdt
+  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;      // 10 usdt
   uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
   uint256 constant public               ROUND_END_DATE = 1757761958;          // 18.07.22 00:00
-  uint256 constant public               LOCK_PERIOD = 2 seconds; // 30 days
+  uint256  public               LOCK_PERIOD; // 30 days
+
+  function shortLock() external onlyOwner() { /////////////////// DEBUG !!!!!!
+    LOCK_PERIOD = 1 seconds;
+  }
+  
+  function longLock() external onlyOwner() {
+    LOCK_PERIOD = 2 seconds;
+  }
 
   // @notice                            token interfaces
   address public                        TERZAddress;
@@ -184,6 +192,7 @@ contract Round is Ownable {
     User  storage                       userStruct = users[user];
     uint256                             amountToClaim; // 10%
 
+    require(userStruct.isLocked == false, "Tokens are locked!");
     if (userStruct.numUnlocks < 10) { // number of claims to perform
       amountToClaim = ((userStruct.totalTERZBalance - userStruct.initialPayout) / 10000) * 1000; // 10%
     }
@@ -193,12 +202,12 @@ contract Round is Ownable {
     else {
       revert("Everything is already claimed!");
     }
+    userStruct.isLocked = true;
     TERZ.mint(user, amountToClaim);
     userStruct.liquidBalance += amountToClaim;
     userStruct.pendingForClaim -= amountToClaim;
     userStruct.nextUnlockDate += LOCK_PERIOD;
     userStruct.numUnlocks += 1;
-    userStruct.isLocked = true;
 
     emit TERZClaimed(user,
                      amountToClaim,
