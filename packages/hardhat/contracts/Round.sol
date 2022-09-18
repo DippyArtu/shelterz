@@ -1,10 +1,11 @@
 //TODO:
 // - reset lock after 10 claims
+// - finish tests
 
 // SPDX-License-Identifier: MIT
 //
 //--------------------------
-// 5F 30 78 30 30 6C 61 62
+// 44 65 66 69 4d 6f 6f 6e
 //--------------------------
 //
 // Syndiqate ICO seed round contract

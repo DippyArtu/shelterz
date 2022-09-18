@@ -7,6 +7,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@tenderly/hardhat-tenderly");
 
 require("hardhat-deploy");
+require("hardhat-deploy-ethers");
 require("hardhat-gas-reporter");
 
 require("@nomiclabs/hardhat-ethers");

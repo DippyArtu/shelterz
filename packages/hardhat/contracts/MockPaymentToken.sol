@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 //
 //--------------------------
-// 5F 30 78 30 30 6C 61 62
+// 44 65 66 69 4d 6f 6f 6e
 //--------------------------
 //
 // Mock token for testing payments in ERC20 tokens
