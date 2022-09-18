@@ -21,6 +21,6 @@ export default function Header({ link, title, subTitle, ...props }) {
 
 Header.defaultProps = {
   link: "https://defimoon.org/",
-  title: "🌕 44 65 66 69 4d 6f 6f 6e",
+  title: "🌕 defimoon",
   subTitle: "web3 development and blockchain security",
 };

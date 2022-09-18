@@ -56,6 +56,7 @@ contract Round is Ownable {
   uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
   //uint256 constant public               ROUND_END_DATE =   33315018412;       // 18.07.22 00:00
   //uint256 constant public               LOCK_PERIOD = 30 days;
+  uint256 constant public               CLAIM_PERCENT = 10;
   uint8 constant public                 NUM_CLAIMS = 10;                      // 10 claims to be performed in total
 
   /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
@@ -93,13 +94,15 @@ contract Round is Ownable {
 
   // @notice                            user state structure
   struct                                User {
-    uint256                             totalTokenBalance;   // total num of tokens user have bought through the contract
+    uint256                             totalTokenBalance;  // total num of tokens user have bought through the contract
+    uint256                             tokensToIssue;      // num of tokens user have bought in current vesting period (non complete unlock cycle)
     uint256                             liquidBalance;      // amount of tokens the contract already sent to user
     uint256                             pendingForClaim;    // amount of user's tokens that are still locked
     uint256                             nextUnlockDate;     // unix timestamp of next claim unlock (defined by LOCK_PERIOD)
-    uint8                               numUnlocks;         // 10 in total
+    uint16                              numUnlocks;         // 10 in total
     bool                                isLocked;           // are tokens currently locked
     uint256                             initialPayout;      // takes into account 10% initial issue
+    bool                                hasBought;          // used in token purchase mechanics
   }
 
   // @notice                            keeps track of users
@@ -198,14 +201,11 @@ contract Round is Ownable {
   function                              claimTokens() public checkLock() {
     address                             user = msg.sender;
     User  storage                       userStruct = users[user];
-    uint256                             amountToClaim; // 10%
+    uint256                             amountToClaim;
 
     require(userStruct.isLocked == false, "Tokens are locked!");
     if (userStruct.numUnlocks < NUM_CLAIMS) {
-      amountToClaim = ((userStruct.totalTokenBalance - userStruct.initialPayout) / 10000) * 1000; // 10%
-    }
-    else if (userStruct.numUnlocks == NUM_CLAIMS) {
-      amountToClaim = userStruct.pendingForClaim;
+      amountToClaim = (userStruct.tokensToIssue / 100) * CLAIM_PERCENT;
     }
     else {
       revert("Everything is already claimed!");
@@ -244,23 +244,35 @@ contract Round is Ownable {
   function                              _lockAndDistribute(uint256 _amount, address _to) private {
     User  storage                       userStruct = users[_to];
     uint256                             timestampNow = block.timestamp;
-    uint256                             immediateAmount = (_amount / 10000) * 1000;  // 10%
 
-    TOKEN.mint(_to, immediateAmount);                                     // issue 10% immediately
-    if (users[_to].totalTokenBalance == 0) {
-      icoTokenHolders.push(_to);
+    if (!userStruct.hasBought || userStruct.numUnlocks == NUM_CLAIMS) {     // initial 10% will be issued only on first buy
+      uint256 immediateAmount = (_amount / 100) * CLAIM_PERCENT;
+      TOKEN.mint(_to, immediateAmount);                                     // issue 10% immediately
+      userStruct.initialPayout += immediateAmount;
+      userStruct.liquidBalance += immediateAmount;                          // issue 10% immediately to struct
+      userStruct.pendingForClaim += _amount - immediateAmount;              // save the rest
+      userStruct.tokensToIssue = _amount - immediateAmount;
+      if (!userStruct.hasBought) {
+        icoTokenHolders.push(_to);
+        userStruct.hasBought = true;
+      }
+      if (userStruct.numUnlocks == NUM_CLAIMS) {
+        userStruct.numUnlocks = 0;
+      }
     }
-    userStruct.initialPayout += immediateAmount;
+    else {
+      uint256 perClaimOld = ((userStruct.totalTokenBalance - userStruct.initialPayout) / 100) * CLAIM_PERCENT;
+      uint256 perClaimNew = ((userStruct.totalTokenBalance + _amount - userStruct.initialPayout) / 100) * CLAIM_PERCENT;
+      uint256 difference = (perClaimNew * userStruct.numUnlocks) - (perClaimOld * userStruct.numUnlocks);
+      TOKEN.mint(_to, difference);                                          // compensate the difference
+      userStruct.pendingForClaim += _amount - difference;
+      userStruct.tokensToIssue += _amount;
+    }
+
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.liquidBalance += immediateAmount;                          // issue 10% immediately to struct
-    userStruct.pendingForClaim += _amount - immediateAmount;               // save the rest
-    userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD;               // lock for 10 months
+    userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD;                 // lock for 10 months
     userStruct.isLocked = true;
-
-    if (userStruct.numUnlocks >= NUM_CLAIMS) {
-      userStruct.numUnlocks = 0;
-    }
   }
 
   // @notice                            allows admin to issue tokens with vesting rules to address

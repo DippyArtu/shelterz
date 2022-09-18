@@ -8,9 +8,9 @@ const           localChainId = "31337";
 
 const           USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // <---- USDT address BSC mainnet
 //const           USDT_ADDRESS = "0x377533D0E68A22CF180205e9c9ed980f74bc5050"; // <---- USDT address BSC testnet
-//const           DEV_ADDRESS = "0x95e9450e2737e2239Be1CE225D79E4B2bE171f71"; // <----- set dev address EOA
-//const           DEV_ADDRESS = "0x6a8bf9f647d920a3f00470c313542088ad808285"; // <----- set dev address hardhat
-const           DEV_ADDRESS = "0xc5F1a117838631225a85863C440223bd25dfD7b3"; // <----- set dev address hardhat front
+//const           DEV_ADDRESS = "0x95e9450e2737e2239Be1CE225D79E4B2bE171f71"; // <----- dev address EOA
+//const           DEV_ADDRESS = "0x6a8bf9f647d920a3f00470c313542088ad808285"; // <----- dev address hardhat
+const           DEV_ADDRESS = "0xc5F1a117838631225a85863C440223bd25dfD7b3"; // <----- dev address hardhat front
 const           ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const           TOKEN_CONTRACT_NAME = "ShelterzToken"; // <--- specify contract names
 
@@ -67,5 +67,14 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     console.log("❗️ |", CONTRACTS[i], "| Ownership transfered to: ", DEV_ADDRESS);
   }
 
+  // Approve dev address USDT for spend
+  //
+  let USDT = await ethers.getContract(CONTRACTS[1], deployer); // <--- comment out for production
+  // USDT = USDT_ADDRESS; // <--- enable for production
+
+  let ROUND = await ethers.getContract(CONTRACTS[2], deployer); // <--- comment out for production
+
+  await USDT.approve(ROUND.address, ethers.utils.parseEther("200000000"));
+  console.log("❗️ | Allowance for USDT updated!");
 };
 module.exports.tags = [CONTRACTS];
