@@ -312,7 +312,55 @@ describe("Token and CO Round Coverage", function () {
       expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("2000"));
     });
 
-    // Should buy 14,728 - claim 3 - buy 829 - claim 5 - buy 1,009 - claim 2 - buy 1,523 - claim 10 ===> 18,089 tokens
+
+    it("Should buy 14,728 - claim 3 - buy 829 - claim 5 - buy 1,009 - claim 2 - buy 1,523 - claim all ===> 18,089 tokens", async function () {
+      const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
+      // purchase 14,728 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("14728"));
+      // claim 3 times
+      for (let i = 0; i < 3; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // test results
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(3);
+
+      // purchase 829 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("829"));
+      // claim 5 times
+      for (let i = 0; i < 5; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // test results
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(8);
+
+      // purchase 1009 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1009"));
+      // claim 2 times
+      for (let i = 0; i < 2; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // test results
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(10);
+
+      // purchase 1523 tokens
+      await hardhatRound.buyTokens(ethers.utils.parseEther("1523"));
+      // claim all
+      for (let i = 0; i < NUM_CLAIMS; i++) {
+        sleep(10);
+        await hardhatRound.claimTokens();
+      }
+      // test results
+      userStruct = await hardhatRound.users(owner.address);
+      expect(userStruct.numUnlocks).to.be.equal(10);
+      expect(userStruct.pendingForClaim).to.be.equal(0);
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("18089"));
+    });
   });
 
 
