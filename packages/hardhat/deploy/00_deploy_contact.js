@@ -1,7 +1,14 @@
 // deploy/00_deploy_contract.js
 
+
+// Goerly
+//
+// Token - 0x5D11948287c5a9747ED9612e11F51314B61BDfc9
+// Round - 0x364E9DFEf1330cc954617ae360851d6d3293FC69
+// USDT — 0x1852d5f604D23A646B1b4FcC64667C6A4C2CF845
+
 // to verify
-// yarn verify --constructor-args ./contract-arguments/SeedRound-args.js --network bsc ADDRESS
+// yarn verify --constructor-args ./contract-arguments/Round-args.js --network bsc ADDRESS
 
 const           { ethers } = require("hardhat");
 const           localChainId = "31337";
@@ -90,12 +97,12 @@ if (DEPLOY == 0) {
   
     // Approve dev address USDT for spend
     //
-    // let USDT = await ethers.getContract(CONTRACTS[1], deployer); // <--- comment out for production
-    // // USDT = USDT_ADDRESS; // <--- enable for production
+    let USDT = await ethers.getContract(CONTRACTS[1], deployer); // <--- comment out for production
+    // USDT = USDT_ADDRESS; // <--- enable for production
   
-    // let ROUND = await ethers.getContract(CONTRACTS[2], deployer);
-    // await USDT.approve(ROUND.address, ethers.utils.parseEther("200000000"));
-    // console.log("❗️ | Allowance for USDT updated!");
+    let ROUND = await ethers.getContract(CONTRACTS[2], deployer);
+    await USDT.approve(ROUND.address, ethers.utils.parseEther("200000000"));
+    console.log("❗️ | Allowance for USDT updated!");
   };
   module.exports.tags = [CONTRACTS];
 }

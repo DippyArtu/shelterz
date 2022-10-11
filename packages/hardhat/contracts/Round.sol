@@ -1,7 +1,3 @@
-//TODO:
-// - reset lock after 10 claims
-// - finish tests
-
 // SPDX-License-Identifier: MIT
 //
 //--------------------------
@@ -12,7 +8,8 @@
 // [+] Ownable
 // [+] ERC20 interface
 // [+] Accepts payment in USDT
-// [+] Tokens timelocked with release over 10 months
+// [+] 12 months TGE
+// [+] 2 months Cliff
 //
 // UI:
 //
@@ -50,24 +47,33 @@ contract Round is Ownable {
   // -------------------------------------------------------------------------------------------------------
 
   // @notice                            round conditions
-  uint256 constant public               ROUND_FUND = 30000000 ether;
-  uint256 constant public               TOKEN_PRICE_USDT = 17;                // 0.017 usdt
-  uint256 constant public               MIN_PURCHASE_AMOUNT = 588 ether;      // 10 usdt
-  uint256 constant public               ROUND_START_DATE = 1657324800;        // 09.07.22 00:00
+  uint256 constant public               ROUND_FUND = 20000000 ether;
+  uint256 constant public               TOKEN_PRICE_USDT = 5;                    // 0.005 usdt
+  uint256 constant public               MIN_PURCHASE_AMOUNT = 2000 ether;      // 10 usdt
+  uint256 constant public               ROUND_START_DATE = 1657324800;           // 09.07.22 00:00
   //uint256 constant public               ROUND_END_DATE =   33315018412;       // 18.07.22 00:00
   //uint256 constant public               LOCK_PERIOD = 30 days;
-  uint256 constant public               CLAIM_PERCENT = 10;
-  uint8 constant public                 NUM_CLAIMS = 10;                      // 10 claims to be performed in total
+  //uint256 constant public               CLIFF = 62 days;                      // 2 month cliff (time before first unlock)
+  uint256 constant public               CLAIM_PERCENT = 79;                   // 7.9%
+  uint8 constant public                 NUM_CLAIMS = 12;                      // 12 claims to be performed in total      
 
   /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
   uint256 public               LOCK_PERIOD = 0;
+  uint256 public               CLIFF = 0;
   function longLock() external onlyOwner() {
     LOCK_PERIOD = 2 seconds;
+    CLIFF = 2 seconds;
+  }
+  function noLock() external onlyOwner() {
+    LOCK_PERIOD = 0;
   }
 
   uint256 public ROUND_END_DATE = 33315018412;
   function expired() external onlyOwner() {
     ROUND_END_DATE = 1657324800;
+  }
+  function active() external onlyOwner() {
+    ROUND_END_DATE = 33315018412;
   }
 
   function getAvailableTreasury() public view returns(uint256) {
@@ -99,9 +105,9 @@ contract Round is Ownable {
     uint256                             liquidBalance;      // amount of tokens the contract already sent to user
     uint256                             pendingForClaim;    // amount of user's tokens that are still locked
     uint256                             nextUnlockDate;     // unix timestamp of next claim unlock (defined by LOCK_PERIOD)
-    uint16                              numUnlocks;         // 10 in total
+    uint16                              numUnlocks;         // 12 in total
     bool                                isLocked;           // are tokens currently locked
-    uint256                             initialPayout;      // takes into account 10% initial issue
+    uint256                             initialPayout;      // takes into account 5% initial payout for multiple purchases
     bool                                hasBought;          // used in token purchase mechanics
   }
 
@@ -131,7 +137,7 @@ contract Round is Ownable {
   // ------------------------------- Constructor
   // -------------------------------------------------------------------------------------------------------
 
-  // @param                             [address] Token => Token token address
+  // @param                             [address] token => token address
   // @param                             [address] usdt => USDT token address
   constructor(address token, address usdt) {
     TokenAddress = token;
@@ -196,16 +202,19 @@ contract Round is Ownable {
   // ------------------------------- ICO logic
   // -------------------------------------------------------------------------------------------------------
 
-  // @notice                            checks if tokens are unlocked and transfers 10% from pendingForClaim
-  //                                    user will recieve all remaining tokens with the last (9th) claim
+  // @notice                            checks if tokens are unlocked and transfers 7.9% from pendingForClaim
+  //                                    user will recieve all remaining tokens with the last (12th) claim
   function                              claimTokens() public checkLock() {
     address                             user = msg.sender;
     User  storage                       userStruct = users[user];
     uint256                             amountToClaim;
 
     require(userStruct.isLocked == false, "Tokens are locked!");
-    if (userStruct.numUnlocks < NUM_CLAIMS) {
-      amountToClaim = (userStruct.tokensToIssue / 100) * CLAIM_PERCENT;
+    if (userStruct.numUnlocks < NUM_CLAIMS - 1) {
+      amountToClaim = (userStruct.tokensToIssue / 1000) * CLAIM_PERCENT;
+    }
+    else if (userStruct.numUnlocks == NUM_CLAIMS - 1) {
+      amountToClaim = userStruct.pendingForClaim;
     }
     else {
       revert("Everything is already claimed!");
@@ -223,8 +232,8 @@ contract Round is Ownable {
                      userStruct.nextUnlockDate);
   }
 
-  // @notice                            allows to purchase Token tokens
-  // @param                             [uint256] _amount => amount of Token tokens to purchase
+  // @notice                            allows to purchase tokens
+  // @param                             [uint256] _amount => amount of tokens to purchase
   function                              buyTokens(uint256 _amount) public areTokensAvailable(_amount) ifActive {
     address                             user = msg.sender;
     uint256                             priceUSDT = _amount / 1000 * TOKEN_PRICE_USDT;
@@ -237,41 +246,29 @@ contract Round is Ownable {
     emit TokenPurchased(msg.sender, _amount);
   }
 
-  // @notice                            when user buys Token, 10% is issued immediately
-  //                                    remaining tokens are locked for 6 * LOCK_PERIOD = 18 months
+  // @notice                            when user buys Token, 5% is issued immediately
+  //                                    remaining tokens are locked for 12 * LOCK_PERIOD = 12 months + 2 months cliff
   // @param                             [uint256] amount => amount of Token tokens to distribute
   // @param                             [address] _to => address to issue tokens to
   function                              _lockAndDistribute(uint256 _amount, address _to) private {
     User  storage                       userStruct = users[_to];
     uint256                             timestampNow = block.timestamp;
 
-    if (!userStruct.hasBought || userStruct.numUnlocks == NUM_CLAIMS) {     // initial 10% will be issued only on first buy
-      uint256 immediateAmount = (_amount / 100) * CLAIM_PERCENT;
-      TOKEN.mint(_to, immediateAmount);                                     // issue 10% immediately
-      userStruct.initialPayout += immediateAmount;
-      userStruct.liquidBalance += immediateAmount;                          // issue 10% immediately to struct
-      userStruct.pendingForClaim += _amount - immediateAmount;              // save the rest
-      userStruct.tokensToIssue = _amount - immediateAmount;
-      if (!userStruct.hasBought) {
-        icoTokenHolders.push(_to);
-        userStruct.hasBought = true;
-      }
-      if (userStruct.numUnlocks == NUM_CLAIMS) {
-        userStruct.numUnlocks = 0;
-      }
-    }
-    else {
-      uint256 perClaimOld = ((userStruct.totalTokenBalance - userStruct.initialPayout) / 100) * CLAIM_PERCENT;
-      uint256 perClaimNew = ((userStruct.totalTokenBalance + _amount - userStruct.initialPayout) / 100) * CLAIM_PERCENT;
-      uint256 difference = (perClaimNew * userStruct.numUnlocks) - (perClaimOld * userStruct.numUnlocks);
-      TOKEN.mint(_to, difference);                                          // compensate the difference
-      userStruct.pendingForClaim += _amount - difference;
-      userStruct.tokensToIssue += _amount;
+    uint256 immediateAmount = (_amount / 100) * 5;
+    TOKEN.mint(_to, immediateAmount);                                     // issue 5% immediately
+    userStruct.initialPayout += immediateAmount;
+    userStruct.liquidBalance += immediateAmount;                        // issue 5% immediately to struct
+    userStruct.pendingForClaim += _amount - immediateAmount;            // save the rest
+    userStruct.tokensToIssue = _amount;
+    userStruct.numUnlocks = 0;
+    if (!userStruct.hasBought) {
+      icoTokenHolders.push(_to);
+      userStruct.hasBought = true;
     }
 
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD;                 // lock for 10 months
+    userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in 2 months cliff
     userStruct.isLocked = true;
   }
 

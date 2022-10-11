@@ -95,20 +95,6 @@ module.exports = {
     },
 
     // Ethereum
-    rinkeby: {
-      url: "https://rinkeby.infura.io/v3/22895bea9db54d2a95a5677e089379d2", // <---- YOUR INFURA ID! (or it won't work)
-      //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/rinkeby", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
-    },
-    kovan: {
-      url: "https://kovan.infura.io/v3/b35f94a90f6d41de8ec8e5d940d32121", // <---- YOUR INFURA ID! (or it won't work)
-      //    url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXX/eth/kovan", // <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
-    },
     mainnet: {
       url: "https://mainnet.infura.io/v3/b35f94a90f6d41de8ec8e5d940d32121", // <---- YOUR INFURA ID! (or it won't work)
       //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/mainnet", // <---- YOUR MORALIS ID! (not limited to infura)
@@ -117,15 +103,8 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
-    ropsten: {
-      url: "https://ropsten.infura.io/v3/b35f94a90f6d41de8ec8e5d940d32121", // <---- YOUR INFURA ID! (or it won't work)
-      //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/ropsten",// <---- YOUR MORALIS ID! (not limited to infura)
-      accounts: {
-        mnemonic: mnemonic(),
-      },
-    },
     goerli: {
-      url: "https://goerli.infura.io/v3/b35f94a90f6d41de8ec8e5d940d32121", // <---- YOUR INFURA ID! (or it won't work)
+      url: "https://eth-goerli.g.alchemy.com/v2/tL-IOpbjXqJW64uGgIhTTyE3GnIxFR_8", // <---- YOUR INFURA ID! (or it won't work)
       //      url: "https://speedy-nodes-nyc.moralis.io/XXXXXXXXXXXXXXXXXXXXXXXXX/eth/goerli", // <---- YOUR MORALIS ID! (not limited to infura)
       accounts: {
         mnemonic: mnemonic(),
@@ -308,8 +287,8 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      mainnet: "YHS7JQ2F256U1UZ3SPAKV8GF292WJFB88R",
-      rinkeby: "YHS7JQ2F256U1UZ3SPAKV8GF292WJFB88R",
+      mainnet: "UCF55ZSNWKY1PU932QZNC8Q2XA2SHV1DJ6",
+      goerli: "UCF55ZSNWKY1PU932QZNC8Q2XA2SHV1DJ6",
       bsc: "I3QBNPKC8WEYN7KVZ25S18433VK2729K8F",
       bscTestnet: "I3QBNPKC8WEYN7KVZ25S18433VK2729K8F",
       // add other network's API key here

@@ -42,7 +42,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
     // -------------------------------------------------------------------------------------------------------
 
     constructor()
-        ERC20("Shelterz Token", "TERZ") {
+        ERC20("SHELTERZ", "TERZ") {
             _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
             contractManagers.push(address(0x00));
     }
