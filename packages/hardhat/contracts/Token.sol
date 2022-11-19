@@ -19,7 +19,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
     // ------------------------------- GLOBAL PARAMETERS
     // -------------------------------------------------------------------------------------------------------
 
-    bytes32 constant public                   MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 constant public                   MINTER = keccak256("MINTER");
     uint256 constant public                   MAX_SUPPLY = 1000000000 ether;
 
 
@@ -69,7 +69,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
     // @notice                                allows to mint new tokens tokens
     // @param                                 [address] to => address to mint tokens to
     // @param                                 [uint256] amount  => amount of tokens to mint
-    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
+    function mint(address to, uint256 amount) public onlyRole(MINTER) {
       require(totalSupply() + amount <= MAX_SUPPLY, "Max supply is reached!");
       _mint(to, amount);
     }
@@ -87,7 +87,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
       _approve(address(this), account, amount);
       contractManagers.push(account);
       isManager[account] = index;
-      _grantRole(MINTER_ROLE, account);
+      _grantRole(MINTER, account);
     }
 
     // @notice                                revokes the ability to spend tokens after init
@@ -100,7 +100,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
 
       delete contractManagers[index];
       isManager[account] = 0;
-      _revokeRole(MINTER_ROLE, account);
+      _revokeRole(MINTER, account);
     }
 
     // @notice                                allows an address (ico contract) to manage tokens
@@ -109,7 +109,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
     function                                  grantRole(bytes32 role, address account) public override onlyRole(getRoleAdmin(role)) {
       uint256                                 index = contractManagers.length;
 
-      if (role == MINTER_ROLE) {
+      if (role == MINTER) {
         require(isManager[account] == 0, "Account already a manager!");
         contractManagers.push(account);
         isManager[account] = index;
@@ -123,7 +123,7 @@ contract ShelterzToken is ERC20, ERC20Burnable, AccessControl {
     function                                  revokeRole(bytes32 role, address account) public override onlyRole(getRoleAdmin(role)) {
       uint256                                 index = isManager[account];
 
-      if (role == MINTER_ROLE) {
+      if (role == MINTER) {
         require(index > 0, "Account not a manager!");
         delete contractManagers[index];
         isManager[account] = 0;

@@ -3,7 +3,7 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-ROUND_FUND = ethers.utils.parseEther("20000000");
+ROUND_FUND = ethers.utils.parseEther("50000000");
 NUM_CLAIMS = 12;
 
 function sleep(milliseconds) {
@@ -88,24 +88,24 @@ describe("Token and CO Round Coverage", function () {
 
   describe("Sale mechanics", function () {
 
-    it("Should sell 10,000 tokens for 50 USDT", async function () {
+    it("Should sell 10,000 tokens for 75 USDT", async function () {
       const {hardhatMockPaymentToken, hardhatRound } = await loadFixture(deployFixture);
       // purchase 10,000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       balanceRound = await hardhatMockPaymentToken.balanceOf(hardhatRound.address);
-      expect(balanceRound).to.be.equal(ethers.utils.parseEther("50"));
+      expect(balanceRound).to.be.equal(ethers.utils.parseEther("75"));
     });
 
 
-    it("Should not sell less than 2,000 tokens ($10)", async function () {
+    it("Should not sell less than 1,333 tokens ($10)", async function () {
       const {hardhatRound } = await loadFixture(deployFixture);
-      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("1999"))).to.be.reverted;
+      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("1332"))).to.be.reverted;
     });
 
 
-    it("Should not sell more than 20 000 000 tokens", async function () {
+    it("Should not sell more than 50,000,000 tokens", async function () {
       const {hardhatRound } = await loadFixture(deployFixture);
-      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("20000001"))).to.be.reverted;
+      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("50000001"))).to.be.reverted;
     });
 
 

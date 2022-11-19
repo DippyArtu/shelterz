@@ -4,12 +4,6 @@
 // 44 65 66 69 4d 6f 6f 6e
 //--------------------------
 //
-// Syndiqate ICO seed round contract
-// [+] Ownable
-// [+] ERC20 interface
-// [+] Accepts payment in USDT
-// [+] 12 months TGE
-// [+] 2 months Cliff
 //
 // UI:
 //
@@ -47,39 +41,17 @@ contract Round is Ownable {
   // -------------------------------------------------------------------------------------------------------
 
   // @notice                            round conditions
-  uint256 constant public               ROUND_FUND = 20000000 ether;
-  uint256 constant public               TOKEN_PRICE_USDT = 5;                    // 0.005 usdt
-  uint256 constant public               MIN_PURCHASE_AMOUNT = 2000 ether;      // 10 usdt
-  uint256 constant public               ROUND_START_DATE = 1657324800;           // 09.07.22 00:00
-  //uint256 constant public               ROUND_END_DATE =   33315018412;       // 18.07.22 00:00
-  //uint256 constant public               LOCK_PERIOD = 30 days;
-  //uint256 constant public               CLIFF = 62 days;                      // 2 month cliff (time before first unlock)
-  uint256 constant public               CLAIM_PERCENT = 79;                   // 7.9%
+  uint256 constant public               ROUND_FUND = 50000000 ether;
+  uint256 constant public               TOKEN_PRICE_USDT = 75;                // price / 10,000 = 0.0075 usdt
+  uint256 constant public               MIN_PURCHASE = 1333 ether;            // 10 usdt
+  uint256 constant public               ROUND_START_DATE = 1665792000;        // 15.10.22 00:00
+  uint256 constant public               ROUND_END_DATE = 1669075200;          // 22.11.22 00:00
+  uint256 constant public               LOCK_PERIOD = 30 days;
+  uint256 constant public               TGE = 5;                              // 5% TGE
+  uint256 constant public               CLIFF = 62 days;                      // 2 month cliff (time before first unlock)
+  uint256 constant public               CLAIM_PERCENT = 790;                  // 7.9%
   uint8 constant public                 NUM_CLAIMS = 12;                      // 12 claims to be performed in total      
 
-  /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
-  uint256 public               LOCK_PERIOD = 0;
-  uint256 public               CLIFF = 0;
-  function longLock() external onlyOwner() {
-    LOCK_PERIOD = 2 seconds;
-    CLIFF = 2 seconds;
-  }
-  function noLock() external onlyOwner() {
-    LOCK_PERIOD = 0;
-  }
-
-  uint256 public ROUND_END_DATE = 33315018412;
-  function expired() external onlyOwner() {
-    ROUND_END_DATE = 1657324800;
-  }
-  function active() external onlyOwner() {
-    ROUND_END_DATE = 33315018412;
-  }
-
-  function getAvailableTreasury() public view returns(uint256) {
-    return(availableTreasury);
-  }
-  /////////////////// !!!!!! FOR TESTING ONLY REMOVE BEFORE DEPLOY !!!!!! ///////////////////
 
   // @notice                            token interfaces
   address public                        TokenAddress;
@@ -105,9 +77,9 @@ contract Round is Ownable {
     uint256                             liquidBalance;      // amount of tokens the contract already sent to user
     uint256                             pendingForClaim;    // amount of user's tokens that are still locked
     uint256                             nextUnlockDate;     // unix timestamp of next claim unlock (defined by LOCK_PERIOD)
-    uint16                              numUnlocks;         // 12 in total
+    uint16                              numUnlocks;         // months total
     bool                                isLocked;           // are tokens currently locked
-    uint256                             initialPayout;      // takes into account 5% initial payout for multiple purchases
+    uint256                             initialPayout;      // takes into account TGE % for multiple purchases
     bool                                hasBought;          // used in token purchase mechanics
   }
 
@@ -158,7 +130,7 @@ contract Round is Ownable {
   // @notice                            checks if tokens could be sold
   // @param                             [uint256] amount => amount of tokens to sell
   modifier                              areTokensAvailable(uint256 amount) {
-    require(amount >= MIN_PURCHASE_AMOUNT,
+    require(amount >= MIN_PURCHASE,
                       "Lower than min purchase amount!");
     require(availableTreasury - amount >= 0,
                       "Not enough tokens left!");
@@ -202,8 +174,8 @@ contract Round is Ownable {
   // ------------------------------- ICO logic
   // -------------------------------------------------------------------------------------------------------
 
-  // @notice                            checks if tokens are unlocked and transfers 7.9% from pendingForClaim
-  //                                    user will recieve all remaining tokens with the last (12th) claim
+  // @notice                            checks if tokens are unlocked and transfers set % from pendingForClaim
+  //                                    user will recieve all remaining tokens with the last claim
   function                              claimTokens() public checkLock() {
     address                             user = msg.sender;
     User  storage                       userStruct = users[user];
@@ -211,7 +183,7 @@ contract Round is Ownable {
 
     require(userStruct.isLocked == false, "Tokens are locked!");
     if (userStruct.numUnlocks < NUM_CLAIMS - 1) {
-      amountToClaim = (userStruct.tokensToIssue / 1000) * CLAIM_PERCENT;
+      amountToClaim = (userStruct.tokensToIssue / 10_000) * CLAIM_PERCENT;
     }
     else if (userStruct.numUnlocks == NUM_CLAIMS - 1) {
       amountToClaim = userStruct.pendingForClaim;
@@ -236,7 +208,7 @@ contract Round is Ownable {
   // @param                             [uint256] _amount => amount of tokens to purchase
   function                              buyTokens(uint256 _amount) public areTokensAvailable(_amount) ifActive {
     address                             user = msg.sender;
-    uint256                             priceUSDT = _amount / 1000 * TOKEN_PRICE_USDT;
+    uint256                             priceUSDT = _amount / 10000 * TOKEN_PRICE_USDT;
 
     require(USDT.allowance(msg.sender, address(this)) >= _amount,
                       "Not enough allowance, approve your USDT first!");
@@ -246,7 +218,7 @@ contract Round is Ownable {
     emit TokenPurchased(msg.sender, _amount);
   }
 
-  // @notice                            when user buys Token, 5% is issued immediately
+  // @notice                            when user buys Token, TGE % is issued immediately
   //                                    remaining tokens are locked for 12 * LOCK_PERIOD = 12 months + 2 months cliff
   // @param                             [uint256] amount => amount of Token tokens to distribute
   // @param                             [address] _to => address to issue tokens to
@@ -254,10 +226,10 @@ contract Round is Ownable {
     User  storage                       userStruct = users[_to];
     uint256                             timestampNow = block.timestamp;
 
-    uint256 immediateAmount = (_amount / 100) * 5;
-    TOKEN.mint(_to, immediateAmount);                                     // issue 5% immediately
+    uint256 immediateAmount = (_amount / 100) * TGE;
+    TOKEN.mint(_to, immediateAmount);                                   // issue TGE % immediately
     userStruct.initialPayout += immediateAmount;
-    userStruct.liquidBalance += immediateAmount;                        // issue 5% immediately to struct
+    userStruct.liquidBalance += immediateAmount;                        // issue TGE % immediately to struct
     userStruct.pendingForClaim += _amount - immediateAmount;            // save the rest
     userStruct.tokensToIssue = _amount;
     userStruct.numUnlocks = 0;
@@ -268,7 +240,7 @@ contract Round is Ownable {
 
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in 2 months cliff
+    userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in cliff
     userStruct.isLocked = true;
   }
 

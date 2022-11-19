@@ -1,6 +1,6 @@
 // SeedRound contract args
 
 module.exports = [
-  "0x19A9F7e249236601533C74B4F0b58Aa23d3CCad4", // TOKEN address
-  "0x576935A0eb59A8dB5E92c01E8cD224701456FedC"  // USDT address
+  "0xCf3Bb6AC0f6D987a5727e2d15e39c2D6061D5beC", // TOKEN address
+  "0x55d398326f99059fF775485246999027B3197955"  // USDT address
 ];
