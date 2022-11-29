@@ -40,15 +40,16 @@ contract Round is Ownable {
   // ------------------------------- ROUND PARAMETERS
   // -------------------------------------------------------------------------------------------------------
 
+
   // @notice                            round conditions
-  uint256 constant public               ROUND_FUND = 50000000 ether;
-  uint256 constant public               TOKEN_PRICE_USDT = 75;                // price / 10,000 = 0.0075 usdt
-  uint256 constant public               MIN_PURCHASE = 1333 ether;            // 10 usdt
-  uint256 constant public               ROUND_START_DATE = 1665792000;        // 15.10.22 00:00
-  uint256 constant public               ROUND_END_DATE = 1669075200;          // 22.11.22 00:00
+  uint256 constant public               ROUND_FUND = 30_000_000 ether;
+  uint256 constant public               TOKEN_PRICE_USDT = 150;                // price / 10,000 = 0.0075 usdt
+  uint256 constant public               MIN_PURCHASE = 1000 ether;            // 10 usdt
+  uint256 public                        ROUND_START_DATE = 	1673740800;        // 15.01.23 00:00
+  uint256 public                        ROUND_END_DATE = 	1674604800;          // 25.01.23 00:00
   uint256 constant public               LOCK_PERIOD = 30 days;
-  uint256 constant public               TGE = 5;                              // 5% TGE
-  uint256 constant public               CLIFF = 62 days;                      // 2 month cliff (time before first unlock)
+  uint256 constant public               TGE = 10;                              // 10% TGE
+  uint256 constant public               CLIFF = 0 days;                      // 0 month cliff (time before first unlock)
   uint256 constant public               CLAIM_PERCENT = 790;                  // 7.9%
   uint8 constant public                 NUM_CLAIMS = 12;                      // 12 claims to be performed in total      
 
@@ -240,7 +241,7 @@ contract Round is Ownable {
 
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in cliff
+    userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD + CLIFF;                 // lock tokens in cliff
     userStruct.isLocked = true;
   }
 
@@ -272,6 +273,18 @@ contract Round is Ownable {
   function                              withdrawRemainingToken(address _reciever) public onlyOwner ifInactive {
     TOKEN.mint(_reciever, availableTreasury);
     availableTreasury = 0;
+  }
+
+  // @notice                            allows to set Start date of round
+  // @param                             [uint] _startDate => date to Start
+  function                              setStartDate(uint _startDate) external onlyOwner {
+    ROUND_START_DATE = _startDate;
+  }
+
+  // @notice                            allows to set End date of round
+  // @param                             [uint] _endDate => date to End
+  function                              setEndDate(uint _endDate) external onlyOwner {
+    ROUND_END_DATE = _endDate;
   }
 
   // @notice                            checks if round still active

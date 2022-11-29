@@ -3,15 +3,13 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 
 
 DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-ROUND_FUND = ethers.utils.parseEther("50000000");
+ROUND_FUND = ethers.utils.parseEther("30000000");
 NUM_CLAIMS = 12;
 
-function sleep(milliseconds) {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
+async function sleep(amount) {
+  const time = 86400 * amount; //1 day
+  await ethers.provider.send("evm_increaseTime", [time])
+  await ethers.provider.send("evm_mine")
 }
 
 
@@ -40,7 +38,7 @@ describe("Token and CO Round Coverage", function () {
 
     // approve USDT for spend
     await hardhatMockPaymentToken.approve(hardhatRound.address, ethers.utils.parseEther("100000000000000"));
-
+    await sleep(47);
     return {
       MockPaymentToken,
       ShelterzToken,
@@ -52,6 +50,7 @@ describe("Token and CO Round Coverage", function () {
       addr1,
       addr2
     };
+    
   };
 
 
@@ -88,32 +87,32 @@ describe("Token and CO Round Coverage", function () {
 
   describe("Sale mechanics", function () {
 
-    it("Should sell 10,000 tokens for 75 USDT", async function () {
+    it("Should sell 10,000 tokens for 150 USDT", async function () {
       const {hardhatMockPaymentToken, hardhatRound } = await loadFixture(deployFixture);
       // purchase 10,000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       balanceRound = await hardhatMockPaymentToken.balanceOf(hardhatRound.address);
-      expect(balanceRound).to.be.equal(ethers.utils.parseEther("75"));
+      expect(balanceRound).to.be.equal(ethers.utils.parseEther("150"));
     });
 
 
-    it("Should not sell less than 1,333 tokens ($10)", async function () {
+    it("Should not sell less than 1000 tokens ($15)", async function () {
       const {hardhatRound } = await loadFixture(deployFixture);
-      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("1332"))).to.be.reverted;
+      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("999"))).to.be.reverted;
     });
 
 
-    it("Should not sell more than 50,000,000 tokens", async function () {
+    it("Should not sell more than 30,000,000 tokens", async function () {
       const {hardhatRound } = await loadFixture(deployFixture);
-      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("50000001"))).to.be.reverted;
+      await expect(hardhatRound.buyTokens(ethers.utils.parseEther("30000001"))).to.be.reverted;
     });
 
 
-    it("Should transfer 5% of the tokens bought to user immidiately", async function () {
+    it("Should transfer 10% of the tokens bought to user immidiately", async function () {
       const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
-      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("500"));
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("1000"));
     });
 
 
@@ -121,7 +120,7 @@ describe("Token and CO Round Coverage", function () {
       const {addr1, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // issue 10000 tokens to user
       await hardhatRound.issueTokens(ethers.utils.parseEther("10000"), addr1.address);
-      expect(await hardhatShelterzToken.balanceOf(addr1.address)).to.be.equal(ethers.utils.parseEther("500"));
+      expect(await hardhatShelterzToken.balanceOf(addr1.address)).to.be.equal(ethers.utils.parseEther("1000"));
     });
 
 
@@ -139,12 +138,12 @@ describe("Token and CO Round Coverage", function () {
 
   describe("Vesting mechanics", function () {
 
-    it("Should lock 95% of the tokens bought", async function () {
+    it("Should lock 90% of the tokens bought", async function () {
       const {owner, hardhatRound} = await loadFixture(deployFixture);
        // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       userStruct = await hardhatRound.users(owner.address);
-      expect(userStruct.pendingForClaim).to.be.equal(ethers.utils.parseEther("9500"));
+      expect(userStruct.pendingForClaim).to.be.equal(ethers.utils.parseEther("9000"));
     });
 
 
@@ -152,22 +151,20 @@ describe("Token and CO Round Coverage", function () {
       const {owner, hardhatRound, hardhatShelterzToken} = await loadFixture(deployFixture);
       // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
-      sleep(10);
+      await sleep(31);
       await hardhatRound.claimTokens();
-      // 5% transfered initially, remaining 95% distributed over 12 claims after 2 months cliff
-      // checking if 12.9% claimed (5% initial + 7.9% new)
-      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("1290"));
-      sleep(10);
+      // 10% transfered initially, remaining 90% distributed over 12 claims after 0 months cliff
+      // checking if 12.9% claimed (10% initial + 7.9% new)
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("1790"));
+      await sleep(31);
       await hardhatRound.claimTokens();
-      // checking if 20.8% claimed (5% initial + 7.9% + 7.9%)
-      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("2080"));
+      // checking if 25.8% claimed (10% initial + 7.9% + 7.9%)
+      expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("2580"));
     });
 
 
     it("Should not allow to claim tokens when locked", async function () {
       const {hardhatRound} = await loadFixture(deployFixture);
-      // set lock period
-      await hardhatRound.longLock();
       // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // trying to claim again straight away
@@ -181,13 +178,13 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim all
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.numUnlocks).to.be.equal(NUM_CLAIMS);
       // try to claim again
-      sleep(10);
+      await sleep(10);
       await expect(hardhatRound.claimTokens()).to.be.reverted;
       expect(await hardhatShelterzToken.balanceOf(owner.address)).to.be.equal(ethers.utils.parseEther("10000"));
     });
@@ -199,7 +196,7 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim all
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // get user pending balance from struct
@@ -218,7 +215,6 @@ describe("Token and CO Round Coverage", function () {
       // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim once
-      sleep(10);
       await hardhatRound.claimTokens();
       // read user number of claims
       userStruct = await hardhatRound.users(owner.address);
@@ -237,7 +233,7 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim twice
       for (let i = 0; i < 2; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // read user number of claims
@@ -245,12 +241,13 @@ describe("Token and CO Round Coverage", function () {
       expect(userStruct.numUnlocks).to.be.equal(2);
       // purchase another 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
+      // Не получится купить еще раз, потому что раунд закончится
       // read user number of claims
       userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.numUnlocks).to.be.equal(0);
       // claim remaining tokens
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(10);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -267,11 +264,12 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim all
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // purchase 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
+      // Не получится купить еще раз, потому что раунд закончится
       userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.numUnlocks).to.be.equal(0);
       await hardhatRound.claimTokens();
@@ -286,7 +284,7 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
       // claim all
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -297,12 +295,14 @@ describe("Token and CO Round Coverage", function () {
 
       // purchase another 10000 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10000"));
+      // Не получится купить еще раз, потому что раунд закончится
       // read user number of claims
       userStruct = await hardhatRound.users(owner.address);
       expect(userStruct.numUnlocks).to.be.equal(0);
       // claim remaining tokens
+      await sleep(62);
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -319,7 +319,7 @@ describe("Token and CO Round Coverage", function () {
       await hardhatRound.buyTokens(ethers.utils.parseEther("14728"));
       // claim 3 times
       for (let i = 0; i < 3; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -328,9 +328,11 @@ describe("Token and CO Round Coverage", function () {
 
       // purchase 8290 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("8290"));
+      // Не получится купить еще раз, потому что раунд закончится
       // claim 5 times
+      await sleep(62);
       for (let i = 0; i < 5; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -339,9 +341,11 @@ describe("Token and CO Round Coverage", function () {
 
       // purchase 10009 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10009"));
+      // Не получится купить еще раз, потому что раунд закончится
       // claim 2 times
+      await sleep(62);
       for (let i = 0; i < 2; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -350,9 +354,11 @@ describe("Token and CO Round Coverage", function () {
 
       // purchase 10523 tokens
       await hardhatRound.buyTokens(ethers.utils.parseEther("10523"));
+      // Не получится купить еще раз, потому что раунд закончится
       // claim all
+      await sleep(62);
       for (let i = 0; i < NUM_CLAIMS; i++) {
-        sleep(10);
+        await sleep(31);
         await hardhatRound.claimTokens();
       }
       // test results
@@ -383,7 +389,7 @@ describe("Token and CO Round Coverage", function () {
     it("Should not allow to purchase tokens if round is not within the timeframe", async function () {
       const {hardhatRound} = await loadFixture(deployFixture);
       // disable the round
-      await hardhatRound.expired();
+      await sleep(50);
       // try to purchase 10000 tokens
       await expect(hardhatRound.buyTokens(ethers.utils.parseEther("10000"))).to.be.reverted;
     });
@@ -421,10 +427,10 @@ describe("Token and CO Round Coverage", function () {
     it("Should allow admin to mint remaining allocated tokens after the round end", async function () {
       const {owner, hardhatRound} = await loadFixture(deployFixture);
       // disable the round
-      await hardhatRound.expired();
+      await sleep(50);
       // mint all tokens
       await hardhatRound.withdrawRemainingToken(owner.address);
-      expect(await hardhatRound.getAvailableTreasury()).to.be.equal(0);
+      expect(await hardhatRound.availableTreasury()).to.be.equal(0);
     });
 
 

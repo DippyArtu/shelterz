@@ -1,0 +1,15 @@
+node_modules
+package-lock.json
+yarn.lock
+bun.lockb
+*.env*
+!dist.env
+mnemonic.txt
+
+#Hardhat files
+artifacts
+cache
+coverage
+coverage.json
+typechain
+typechain-types

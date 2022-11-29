@@ -18,10 +18,12 @@ const           DEPLOY = 1    // <------- 0 — initial deploy (token + round)
 const           TRANSFER_OWNERSHIP = 1; // <------ 0 — yes
                                         //         1 — no
 
+//const           USDT_ADDRESS = "0x1852d5f604D23A646B1b4FcC64667C6A4C2CF845"; // <---- USDT goerly (mockpayment)
 const           USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955"; // <---- USDT address BSC mainnet
 //const           USDT_ADDRESS = "0x377533D0E68A22CF180205e9c9ed980f74bc5050"; // <---- USDT address BSC testnet
 
 const           TOKEN_ADDRESS = "0xCf3Bb6AC0f6D987a5727e2d15e39c2D6061D5beC"; // <----- token address needed for round deploy (after initial)
+//const           TOKEN_ADDRESS = "0x5D11948287c5a9747ED9612e11F51314B61BDfc9"; // <----- goerli token address
 
 const           DEV_ADDRESS = "0x95e9450e2737e2239Be1CE225D79E4B2bE171f71"; // <----- dev address EOA
 //const           DEV_ADDRESS = "0x6a8bf9f647d920a3f00470c313542088ad808285"; // <----- dev address hardhat
