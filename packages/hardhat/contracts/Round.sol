@@ -43,7 +43,7 @@ contract Round is Ownable {
 
   // @notice                            round conditions
   uint256 constant public               ROUND_FUND = 30_000_000 ether;
-  uint256 constant public               TOKEN_PRICE_USDT = 150;                // price / 10,000 = 0.0075 usdt
+  uint256 constant public               TOKEN_PRICE_USDT = 150;                // price / 10,000 = 0.015 usdt
   uint256 constant public               MIN_PURCHASE = 1000 ether;            // 10 usdt
   uint256 public                        ROUND_START_DATE = 	1673740800;        // 15.01.23 00:00
   uint256 public                        ROUND_END_DATE = 	1674604800;          // 25.01.23 00:00
@@ -241,8 +241,7 @@ contract Round is Ownable {
 
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.nextUnlockDate = timestampNow + (CLIFF > 0 ? CLIFF : LOCK_PERIOD);
-    //userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in cliff
+    userStruct.nextUnlockDate = timestampNow + (CLIFF > 0 ? CLIFF : LOCK_PERIOD); // lock tokens depends on cliff and lock period
     userStruct.isLocked = true;
   }
 
