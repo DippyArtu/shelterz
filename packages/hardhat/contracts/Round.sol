@@ -241,7 +241,8 @@ contract Round is Ownable {
 
     userStruct.totalTokenBalance += _amount;
     availableTreasury -= _amount;
-    userStruct.nextUnlockDate = timestampNow + LOCK_PERIOD + CLIFF;                 // lock tokens in cliff
+    userStruct.nextUnlockDate = timestampNow + (CLIFF > 0 ? CLIFF : LOCK_PERIOD);
+    //userStruct.nextUnlockDate = timestampNow + CLIFF;                 // lock tokens in cliff
     userStruct.isLocked = true;
   }
 
