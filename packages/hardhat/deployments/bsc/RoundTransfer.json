@@ -1,0 +1,336 @@
+{
+  "address": "0x181007058Aa913FC488E9881cEacE74766ccaa78",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "TokenPurchased",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ROUND_FUND",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TokenAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "availableTreasury",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "checkIfActive",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "isActive",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_amount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "_to",
+          "type": "address"
+        }
+      ],
+      "name": "issueTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_reciever",
+          "type": "address"
+        }
+      ],
+      "name": "withdrawRemainingToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x243782facfb3d7387d32470f07a69afb980771108ad3b3b23f44639fcb2087e7",
+  "receipt": {
+    "to": null,
+    "from": "0xffEe27Bc7f773ffbCB88621009a7c55ce8B73260",
+    "contractAddress": "0x181007058Aa913FC488E9881cEacE74766ccaa78",
+    "transactionIndex": 0,
+    "gasUsed": "596310",
+    "logsBloom": "0x00000004000000001800000000000000000080000000000000800000000000100000010000000000000000000000004000000000000000000000000000200000000000000000000010200000000000000001000000000000000000000000000000004000020000000000000000000800000000000000000000000000000000400000000000000100000000000000000001000000000000000000000000000000020000000000000000000080000200000000000000000000001000000008000000000000000000000040000000200000000000000000000100000000000020000010100000000000000000000000000000000000000000000200000000000000",
+    "blockHash": "0x3d1f54951307fc2ced7311fcfe07ffac49f1cc09ba98e3064aef70e0f481abef",
+    "transactionHash": "0x243782facfb3d7387d32470f07a69afb980771108ad3b3b23f44639fcb2087e7",
+    "logs": [
+      {
+        "transactionIndex": 0,
+        "blockNumber": 25689835,
+        "transactionHash": "0x243782facfb3d7387d32470f07a69afb980771108ad3b3b23f44639fcb2087e7",
+        "address": "0x181007058Aa913FC488E9881cEacE74766ccaa78",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x000000000000000000000000ffee27bc7f773ffbcb88621009a7c55ce8b73260"
+        ],
+        "data": "0x",
+        "logIndex": 0,
+        "blockHash": "0x3d1f54951307fc2ced7311fcfe07ffac49f1cc09ba98e3064aef70e0f481abef"
+      },
+      {
+        "transactionIndex": 0,
+        "blockNumber": 25689835,
+        "transactionHash": "0x243782facfb3d7387d32470f07a69afb980771108ad3b3b23f44639fcb2087e7",
+        "address": "0xCf3Bb6AC0f6D987a5727e2d15e39c2D6061D5beC",
+        "topics": [
+          "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
+          "0x000000000000000000000000cf3bb6ac0f6d987a5727e2d15e39c2d6061d5bec",
+          "0x000000000000000000000000181007058aa913fc488e9881ceace74766ccaa78"
+        ],
+        "data": "0x00000000000000000000000000000000000000000052b7d2dcc80cd2e4000000",
+        "logIndex": 1,
+        "blockHash": "0x3d1f54951307fc2ced7311fcfe07ffac49f1cc09ba98e3064aef70e0f481abef"
+      },
+      {
+        "transactionIndex": 0,
+        "blockNumber": 25689835,
+        "transactionHash": "0x243782facfb3d7387d32470f07a69afb980771108ad3b3b23f44639fcb2087e7",
+        "address": "0xCf3Bb6AC0f6D987a5727e2d15e39c2D6061D5beC",
+        "topics": [
+          "0x2f8788117e7eff1d82e926ec794901d17c78024a50270940304540a733656f0d",
+          "0xf0887ba65ee2024ea881d91b74c2450ef19e1557f03bed3ea9f16b037cbe2dc9",
+          "0x000000000000000000000000181007058aa913fc488e9881ceace74766ccaa78",
+          "0x000000000000000000000000181007058aa913fc488e9881ceace74766ccaa78"
+        ],
+        "data": "0x",
+        "logIndex": 2,
+        "blockHash": "0x3d1f54951307fc2ced7311fcfe07ffac49f1cc09ba98e3064aef70e0f481abef"
+      }
+    ],
+    "blockNumber": 25689835,
+    "cumulativeGasUsed": "596310",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xCf3Bb6AC0f6D987a5727e2d15e39c2D6061D5beC"
+  ],
+  "solcInputHash": "e654e7c1633bfbd357b15af51df5e318",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.4+commit.c7e474f2\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"TokenPurchased\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"ROUND_FUND\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"TokenAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"availableTreasury\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"checkIfActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isActive\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_amount\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"_to\",\"type\":\"address\"}],\"name\":\"issueTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_reciever\",\"type\":\"address\"}],\"name\":\"withdrawRemainingToken\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/Transfer.sol\":\"RoundTransfer\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/Transfer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.4;\\n\\nimport \\\"../libs/@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport \\\"../libs/@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\n\\nimport \\\"./interfaces/ITOKEN.sol\\\";\\n\\ncontract RoundTransfer is Ownable {\\n\\n  // -------------------------------------------------------------------------------------------------------\\n  // ------------------------------- ROUND PARAMETERS\\n  // -------------------------------------------------------------------------------------------------------\\n\\n\\n  // @notice                            round conditions\\n  uint256 constant public               ROUND_FUND = 100_000_000 ether;             \\n  \\n  // @notice                            token interfaces\\n  address public                        TokenAddress;\\n  IToken                                TOKEN;\\n\\n  // @notice                            round state\\n  uint256 public                        availableTreasury = ROUND_FUND;\\n  bool    public                        isActive;\\n\\n\\n\\n  // -------------------------------------------------------------------------------------------------------\\n  // ------------------------------- EVENTS\\n  // -------------------------------------------------------------------------------------------------------\\n\\n  event                                 TokenPurchased(address indexed user, uint256 amount);\\n\\n  // FUNCTIONS\\n  //\\n  // -------------------------------------------------------------------------------------------------------\\n  // ------------------------------- Constructor\\n  // -------------------------------------------------------------------------------------------------------\\n\\n  // @param                             [address] token => token address\\n  // @param                             [address] usdt => USDT token address\\n  constructor(address token) {\\n    TokenAddress = token;\\n    TOKEN = IToken(token);\\n    TOKEN.grantManagerToContractInit(address(this), ROUND_FUND);\\n    isActive = true;\\n  }\\n\\n  // -------------------------------------------------------------------------------------------------------\\n  // ------------------------------- Modifiers\\n  // -------------------------------------------------------------------------------------------------------\\n\\n  // @notice                            checks if tokens could be sold\\n  // @param                             [uint256] amount => amount of tokens to sell\\n  modifier                              areTokensAvailable(uint256 amount) {\\n    require(availableTreasury - amount >= 0,\\n                      \\\"Not enough tokens left!\\\");\\n    _;\\n  }\\n\\n  // @notice                            checks if round is active\\n  modifier                              ifActive() {\\n    if ( availableTreasury == 0) {\\n      isActive = false;\\n      revert(\\\"Round is not active!\\\");\\n    }\\n    isActive = true;\\n    _;\\n  }\\n\\n  // @notice                            checks if round is inactive\\n  modifier                              ifInactive() {\\n    if ( availableTreasury > 0) {\\n      isActive = true;\\n      revert(\\\"Round is still active!\\\");\\n    }\\n    isActive = false;\\n    _;\\n  }\\n\\n  // -------------------------------------------------------------------------------------------------------\\n  // ------------------------------- Admin\\n  // -------------------------------------------------------------------------------------------------------\\n\\n  // @notice                            allows admin to issue tokens with vesting rules to address\\n  // @param                             [uint256] _amount => amount of Token tokens to issue\\n  // @param                             [address] _to => address to issue tokens to\\n  function                              issueTokens(uint256 _amount, address _to) public areTokensAvailable(_amount) onlyOwner {\\n    TOKEN.mint(_to, _amount);\\n    availableTreasury -= _amount;\\n    emit TokenPurchased(_to, _amount);\\n  }\\n\\n  // @notice                            allows to withdraw remaining tokens after the round end\\n  // @param                             [address] _reciever => wallet to send tokens to\\n  function                              withdrawRemainingToken(address _reciever) public onlyOwner ifInactive {\\n    TOKEN.mint(_reciever, availableTreasury);\\n    availableTreasury = 0;\\n  }\\n\\n  // @notice                            checks if round still active\\n  function                              checkIfActive() public returns(bool) {\\n    if (availableTreasury == 0) {\\n      isActive = false;\\n    }\\n    if (availableTreasury > 0) {\\n      isActive = true;\\n    }\\n    return(isActive);\\n  }\\n}\",\"keccak256\":\"0x2a8a70f2514565aef3d121461e2d6c08dd0261a457e78955dd89c9e032055022\",\"license\":\"MIT\"},\"contracts/interfaces/ITOKEN.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n//\\n//--------------------------\\n// 5F 30 78 30 30 6C 61 62\\n//--------------------------\\n//\\n// Token contract interface\\n\\npragma solidity ^0.8.4;\\n\\ninterface IToken {\\n  function        balanceOf(address account) external view returns (uint256);\\n  function        transfer(address to, uint256 amount) external returns (bool);\\n  function        transferFrom(address from,\\n                               address to,\\n                               uint256 amount\\n                               ) external returns (bool);\\n  function        approve(address spender, uint256 amount) external returns (bool);\\n  function        allowance(address owner, address spender) external view returns (uint256);\\n  function        grantManagerToContractInit(address account, uint256 amount) external;\\n  function        revokeManagerAfterContractInit(address account) external;\\n  function        mint(address to, uint256 amount) external;\\n}\\n\",\"keccak256\":\"0xf8d56993c921eb1f86e3706ef03f86b6a06a672775e12d01a773a7d6acbe50c1\",\"license\":\"MIT\"},\"libs/@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (access/Ownable.sol)\\n\\npragma solidity ^0.8.0;\\n\\nimport \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * By default, the owner account will be the one that deploys the contract. This\\n * can later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the deployer as the initial owner.\\n     */\\n    constructor() {\\n        _transferOwnership(_msgSender());\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        require(owner() == _msgSender(), \\\"Ownable: caller is not the owner\\\");\\n        _;\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions anymore. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby removing any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        require(newOwner != address(0), \\\"Ownable: new owner is the zero address\\\");\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0x24e0364e503a9bbde94c715d26573a76f14cd2a202d45f96f52134ab806b67b9\",\"license\":\"MIT\"},\"libs/@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Interface of the ERC20 standard as defined in the EIP.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the amount of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the amount of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves `amount` tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 amount) external returns (bool);\\n\\n    /**\\n     * @dev Moves `amount` tokens from `from` to `to` using the\\n     * allowance mechanism. `amount` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(\\n        address from,\\n        address to,\\n        uint256 amount\\n    ) external returns (bool);\\n}\\n\",\"keccak256\":\"0x9750c6b834f7b43000631af5cc30001c5f547b3ceb3635488f140f60e897ea6b\",\"license\":\"MIT\"},\"libs/@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)\\n\\npragma solidity ^0.8.0;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n}\\n\",\"keccak256\":\"0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60806040526a52b7d2dcc80cd2e400000060035534801561001f57600080fd5b5060405161078038038061078083398101604081905261003e91610134565b610047336100e4565b600180546001600160a01b0383166001600160a01b0319918216811790925560028054909116821790556040516366b700d760e01b81523060048201526a52b7d2dcc80cd2e400000060248201526366b700d790604401600060405180830381600087803b1580156100b857600080fd5b505af11580156100cc573d6000803e3d6000fd5b50506004805460ff1916600117905550610162915050565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b600060208284031215610145578081fd5b81516001600160a01b038116811461015b578182fd5b9392505050565b61060f806101716000396000f3fe608060405234801561001057600080fd5b506004361061009e5760003560e01c8063c23be47f11610066578063c23be47f1461011e578063c2cba30614610131578063cb62803914610144578063e6748c5a1461014c578063f2fde38b1461015e57600080fd5b806322f3e2d4146100a3578063715018a6146100c55780637ad5be88146100cf5780638da5cb5b146100e25780639b5856c914610107575b600080fd5b6004546100b09060ff1681565b60405190151581526020015b60405180910390f35b6100cd610171565b005b6100cd6100dd366004610556565b6101b0565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016100bc565b61011060035481565b6040519081526020016100bc565b6100cd61012c366004610535565b6102f9565b6001546100ef906001600160a01b031681565b6100b06103f6565b6101106a52b7d2dcc80cd2e400000081565b6100cd61016c366004610535565b61042e565b6000546001600160a01b031633146101a45760405162461bcd60e51b815260040161019b90610581565b60405180910390fd5b6101ae60006104c9565b565b816000816003546101c191906105b6565b101561020f5760405162461bcd60e51b815260206004820152601760248201527f4e6f7420656e6f75676820746f6b656e73206c65667421000000000000000000604482015260640161019b565b6000546001600160a01b031633146102395760405162461bcd60e51b815260040161019b90610581565b6002546040516340c10f1960e01b81526001600160a01b03848116600483015260248201869052909116906340c10f1990604401600060405180830381600087803b15801561028757600080fd5b505af115801561029b573d6000803e3d6000fd5b5050505082600360008282546102b191906105b6565b90915550506040518381526001600160a01b038316907f55c18555197c6574627cf460c66073d10aa05d412468800b7b71feeaf82ea92d9060200160405180910390a2505050565b6000546001600160a01b031633146103235760405162461bcd60e51b815260040161019b90610581565b60035415610379576004805460ff1916600117815560405162461bcd60e51b815261019b9101602080825260169082015275526f756e64206973207374696c6c206163746976652160501b604082015260600190565b6004805460ff191681556002546003546040516340c10f1960e01b81526001600160a01b038581169482019490945260248101919091529116906340c10f1990604401600060405180830381600087803b1580156103d657600080fd5b505af11580156103ea573d6000803e3d6000fd5b50506000600355505050565b60006003546000141561040e576004805460ff191690555b60035415610424576004805460ff191660011790555b5060045460ff1690565b6000546001600160a01b031633146104585760405162461bcd60e51b815260040161019b90610581565b6001600160a01b0381166104bd5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b606482015260840161019b565b6104c6816104c9565b50565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80356001600160a01b038116811461053057600080fd5b919050565b600060208284031215610546578081fd5b61054f82610519565b9392505050565b60008060408385031215610568578081fd5b8235915061057860208401610519565b90509250929050565b6020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604082015260600190565b6000828210156105d457634e487b7160e01b81526011600452602481fd5b50039056fea26469706673582212207752adb7fdfe09ef8832748a6fe65e28807f57cf198b7c38969d3ceb9c90d9ba64736f6c63430008040033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061009e5760003560e01c8063c23be47f11610066578063c23be47f1461011e578063c2cba30614610131578063cb62803914610144578063e6748c5a1461014c578063f2fde38b1461015e57600080fd5b806322f3e2d4146100a3578063715018a6146100c55780637ad5be88146100cf5780638da5cb5b146100e25780639b5856c914610107575b600080fd5b6004546100b09060ff1681565b60405190151581526020015b60405180910390f35b6100cd610171565b005b6100cd6100dd366004610556565b6101b0565b6000546001600160a01b03165b6040516001600160a01b0390911681526020016100bc565b61011060035481565b6040519081526020016100bc565b6100cd61012c366004610535565b6102f9565b6001546100ef906001600160a01b031681565b6100b06103f6565b6101106a52b7d2dcc80cd2e400000081565b6100cd61016c366004610535565b61042e565b6000546001600160a01b031633146101a45760405162461bcd60e51b815260040161019b90610581565b60405180910390fd5b6101ae60006104c9565b565b816000816003546101c191906105b6565b101561020f5760405162461bcd60e51b815260206004820152601760248201527f4e6f7420656e6f75676820746f6b656e73206c65667421000000000000000000604482015260640161019b565b6000546001600160a01b031633146102395760405162461bcd60e51b815260040161019b90610581565b6002546040516340c10f1960e01b81526001600160a01b03848116600483015260248201869052909116906340c10f1990604401600060405180830381600087803b15801561028757600080fd5b505af115801561029b573d6000803e3d6000fd5b5050505082600360008282546102b191906105b6565b90915550506040518381526001600160a01b038316907f55c18555197c6574627cf460c66073d10aa05d412468800b7b71feeaf82ea92d9060200160405180910390a2505050565b6000546001600160a01b031633146103235760405162461bcd60e51b815260040161019b90610581565b60035415610379576004805460ff1916600117815560405162461bcd60e51b815261019b9101602080825260169082015275526f756e64206973207374696c6c206163746976652160501b604082015260600190565b6004805460ff191681556002546003546040516340c10f1960e01b81526001600160a01b038581169482019490945260248101919091529116906340c10f1990604401600060405180830381600087803b1580156103d657600080fd5b505af11580156103ea573d6000803e3d6000fd5b50506000600355505050565b60006003546000141561040e576004805460ff191690555b60035415610424576004805460ff191660011790555b5060045460ff1690565b6000546001600160a01b031633146104585760405162461bcd60e51b815260040161019b90610581565b6001600160a01b0381166104bd5760405162461bcd60e51b815260206004820152602660248201527f4f776e61626c653a206e6577206f776e657220697320746865207a65726f206160448201526564647265737360d01b606482015260840161019b565b6104c6816104c9565b50565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80356001600160a01b038116811461053057600080fd5b919050565b600060208284031215610546578081fd5b61054f82610519565b9392505050565b60008060408385031215610568578081fd5b8235915061057860208401610519565b90509250929050565b6020808252818101527f4f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572604082015260600190565b6000828210156105d457634e487b7160e01b81526011600452602481fd5b50039056fea26469706673582212207752adb7fdfe09ef8832748a6fe65e28807f57cf198b7c38969d3ceb9c90d9ba64736f6c63430008040033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 2182,
+        "contract": "contracts/Transfer.sol:RoundTransfer",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 1044,
+        "contract": "contracts/Transfer.sol:RoundTransfer",
+        "label": "TokenAddress",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_address"
+      },
+      {
+        "astId": 1047,
+        "contract": "contracts/Transfer.sol:RoundTransfer",
+        "label": "TOKEN",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IToken)1781"
+      },
+      {
+        "astId": 1050,
+        "contract": "contracts/Transfer.sol:RoundTransfer",
+        "label": "availableTreasury",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1052,
+        "contract": "contracts/Transfer.sol:RoundTransfer",
+        "label": "isActive",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_bool"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_contract(IToken)1781": {
+        "encoding": "inplace",
+        "label": "contract IToken",
+        "numberOfBytes": "20"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}

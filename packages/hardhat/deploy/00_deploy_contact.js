@@ -15,7 +15,7 @@ const           localChainId = "31337";
 
 const           DEPLOY = 1    // <------- 0 — initial deploy (token + round)
                               //          1 — round deploy
-const           TRANSFER_OWNERSHIP = 1; // <------ 0 — yes
+const           TRANSFER_OWNERSHIP = 0; // <------ 0 — yes
                                         //         1 — no
 
 //const           USDT_ADDRESS = "0x1852d5f604D23A646B1b4FcC64667C6A4C2CF845"; // <---- USDT goerly (mockpayment)
@@ -33,8 +33,7 @@ const           ADMIN_ROLE = "0x000000000000000000000000000000000000000000000000
 const           TOKEN_CONTRACT_NAME = "ShelterzToken"; // <--- specify contract names
 
 const           CONTRACTS = [TOKEN_CONTRACT_NAME,
-                             "MockPaymentToken",      // <--- specify contract names
-                             "Round"];                // <--- specify contract names
+                             "RoundTransfer"];                // <--- specify contract names
 const           numContracts = CONTRACTS.length;
 
 
@@ -64,7 +63,7 @@ if (DEPLOY == 0) {
   
         await deploy(CONTRACTS[i], {
           from: deployer,
-          args: [TOKEN, USDT],
+          args: [TOKEN],
           log: true,
           waitConfirmations: 5,
         });
@@ -121,9 +120,9 @@ else if (DEPLOY == 1) {
     TOKEN = TOKEN_ADDRESS;
     USDT = USDT_ADDRESS;
 
-    await deploy(CONTRACTS[2], {
+    await deploy(CONTRACTS[1], {
       from: deployer,
-      args: [TOKEN, USDT],
+      args: [TOKEN],
       log: true,
       waitConfirmations: 5,
     });
